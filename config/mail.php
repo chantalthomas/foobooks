@@ -2,6 +2,8 @@
 
 return [
 
+    'supportEmail' => 'thomas.chantala@gmail.com',
+
     /*
     |--------------------------------------------------------------------------
     | Mail Driver

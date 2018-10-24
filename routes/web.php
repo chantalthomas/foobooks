@@ -11,14 +11,21 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', 'WelcomeController');
+
+//Route::get('/books/{category}/{title}', function($category, $title){
+//    return 'You are viewing the book: ' .$title. ' in the category ' .$category;
+//});
+
+Route::get('/books/{title}', 'BookController@show');
+
+Route::get('/books/', 'BookController@index');
+
+Route::get('/abc', function (){
+    return App::environment();
 });
 
-Route::get('/abc', function () {
-    return 'Hello ABC!';
-});
-
-Route::get('/xyz', function () {
-    return view('xyz');
-});
+/**
+ * Practice
+ */
+Route::any('/practice/{n?}', 'PracticeController@index');
