@@ -17,7 +17,7 @@ Route::get('/', 'WelcomeController');
 //    return 'You are viewing the book: ' .$title. ' in the category ' .$category;
 //});
 
-Route::get('/books/{title}', 'BookController@show');
+Route::get('/books/{title}', 'BookController@showBook');
 
 Route::get('/books/', 'BookController@index');
 

@@ -8,11 +8,11 @@ class BookController extends Controller
 {
     public function index()
     {
-        return 'Here are all the books...';
+        return view('books.index');
     }
 
-    public function show($title)
+    public function showBook($title)
     {
-        return 'You are viewing: ' . $title;
+        return view('books.showBook')->with(['title' => $title]);
     }
 }
