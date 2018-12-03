@@ -80,7 +80,7 @@ class PracticeController extends Controller
     public function practice5()
     {
         $book = new Book();
-        $books = $book->where('title', 'LIKE', '%Harry Potter%')->get();
+        $books = $book->all();
 
         if ($books->isEmpty()) {
             dump('No matches found');
