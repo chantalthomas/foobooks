@@ -2,6 +2,14 @@
 
 return [
 
+    'nav' => [
+        '/books' => 'Books',
+        'books/create' => 'Add a Book',
+        'books/search' => 'Link Search',
+        '/practice' => 'Practice',
+        '/about' => 'About',
+        '/contact' => 'Contact',
+    ],
     /*
     |--------------------------------------------------------------------------
     | Application Name
