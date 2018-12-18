@@ -2,10 +2,19 @@
 
 return [
 
+    # Guest navigation links
     'nav' => [
+        '/register' => 'Register',
+        '/login' => 'Login',
+        '/about' => 'About',
+        '/contact' => 'Contact',
+    ],
+
+    # Logged-in user navigation links
+    'nav1' => [
         '/books' => 'Books',
         'books/create' => 'Add a Book',
-        'books/search' => 'Link Search',
+        'books/search' => 'Search',
         '/practice' => 'Practice',
         '/about' => 'About',
         '/contact' => 'Contact',

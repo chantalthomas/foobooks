@@ -2,18 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Author;
+use App\Book;
+use App\Tag;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     public function index()
     {
-        return view('books.index');
+        $books = Book::orderBy('title')->get();
+
+        #Approach 1 - query the database
+        #$newBooks = Book::latest()->limit(3)->get();
+
+        #Approach 2 - query the collection, optimal
+        $newBooks =$books->sortByDesc('created_at')->take(3);
+
+        return view('books.index')->with([
+            'books' => $books,
+            'newBooks' => $newBooks
+        ]);
     }
 
-    public function showBook($title)
+    public function showBook(Request $request, $id)
     {
-        return view('books.showBook')->with(['title' => $title]);
+        $book = Book::find($id);
+        return view('books.showBook')->with(['book' => $book
+        ]);
     }
 
     /**
@@ -24,8 +40,8 @@ class BookController extends Controller
     public function search(Request $request)
     {
         return view('books.search')->with([
-            'searchTerm' => $request->session()->get('searchTerm', ''),
-            'caseSensitive' => $request->session()->get('caseSensitive', false),
+            'searchTerm' => session('searchTerm', ''),
+            'caseSensitive' => session('caseSensitive', false),
             'searchResults' => $request->session()->get('searchResults', []),
         ]);
     }
@@ -90,7 +106,12 @@ class BookController extends Controller
      */
     public function create(Request $request)
     {
-        return view('books.create');
+        $authors = Author::getForDropdown();
+        dump($authors->toArray());
+
+        return view('books.create')->with([
+            'authors' => $authors
+        ]);
     }
 
 
@@ -103,14 +124,118 @@ class BookController extends Controller
         # Validate the request data
         $request->validate([
             'title' => 'required',
-            'author' => 'required',
+            'author_id' => 'required',
             'published_year' => 'required|digits:4',
             'cover_url' => 'required|url',
             'purchase_url' => 'required|url'
         ]);
 
-        # Code will eventually go here to add the book to the database,
-        # but for now we'll just dump the form data to the page for proof of concept
-        dump($request->all());
+        $book = new Book();
+        $book->title = $request->input('title');
+        //$book->author = $request->input('author');
+
+        //Approach One
+        //$author = Author::find($request->author_id);
+        //$book->author()->associate($author);
+
+        //Approach Two (Quicker)
+        $book->author_id = $request->author_id;
+
+        $book->published_year = $request->input('published_year');
+        $book->cover_url = $request->input('cover_url');
+        $book->purchase_url = $request->input('purchase_url');
+        $book->save();
+
+        return redirect('/books')->with([
+            'alert' => 'Your book was added.'
+        ]);
+    }
+
+    /*
+    * GET /books/{id}/edit
+    */
+    public function edit($id)
+    {
+        $book = Book::find($id);
+
+        $authors = Author::getForDropdown();
+
+        $tags = Tag::getForCheckboxes();
+
+        $tagsForThisBook = $book->tags()->pluck('tags.id')->toArray();
+        dump($tagsForThisBook);
+
+        if (!$book) {
+            return redirect('/books')->with([
+                'alert' => 'Book not found.'
+            ]);
+        }
+
+        return view('books.edit')->with([
+            'book' => $book,
+            'authors' => $authors,
+            'tags' => $tags,
+            'tagsForThisBook' =>$tagsForThisBook
+        ]);
+    }
+
+    /*
+    * PUT /books/{id}
+    */
+    public function update(Request $request, $id)
+    {
+        $this->validate($request, [
+            'title' => 'required',
+            'author_id' => 'required',
+            'published_year' => 'required|digits:4|numeric',
+            'cover_url' => 'required|url',
+            'purchase_url' => 'required|url',
+        ]);
+
+        //dd($request->tags);
+
+        $book = Book::find($id);
+        $book->tags()->sync($request->tags);
+
+        $book->title = $request->title;
+        $book->author_id = $request->author_id;
+        $book->published_year = $request->published_year;
+        $book->cover_url = $request->cover_url;
+        $book->purchase_url = $request->purchase_url;
+        $book->save();
+
+        return redirect('/books/'.$id.'/edit')->with([
+            'alert' => 'Your changes were saved.'
+        ]);
+    }
+
+    /*
+    * GET /books/{id}/edit
+    */
+    public function delete($id)
+    {
+        $book = Book::find($id);
+
+        if (!$book) {
+            return redirect('/books')->with([
+                'alert' => 'Book not found.'
+            ]);
+        }
+        else{
+            return view('books.delete')->with([
+                'book' => $book
+            ]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $book = Book::find($id);
+        $book->tags()->detach();
+        $book->delete();
+
+        return redirect('/books')->with([
+            'alert' => '"' . $book->totle . '" was removed.'
+        ]);
     }
 }

@@ -20,17 +20,27 @@ Route::get('/', 'WelcomeController');
 /**
  * Books
  */
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/books/search', 'BookController@search');
+    Route::get('/books/search-process', 'BookController@searchProcess');
+    # CREATE
+    Route::get('/books/create', 'BookController@create');
+    Route::post('/books', 'BookController@store');
+    # SHOW
+    Route::get('/books/{id}', 'BookController@showBook');
+    Route::get('/books', 'BookController@index');
+    # EDIT
+    # Show the form to edit a specific book
+    Route::get('/books/{id}/edit', 'BookController@edit');
+    # Process the form to edit a specific book
+    Route::put('/books/{id}', 'BookController@update');
+    # DELETE
+    # Show the page to confirm deletion of a book
+    Route::get('/books/{id}/delete', 'BookController@delete');
+    # Process the deletion of a book
+    Route::delete('/books/{id}', 'BookController@destroy');
+});
 
-# /routes/web.php
-Route::get('/books/create', 'BookController@create');
-Route::post('/books', 'BookController@store');
-
-Route::get('/books/search', 'BookController@search'); # <-- NEW 1 of 2
-Route::get('/books/search-process', 'BookController@searchProcess'); # <-- NEW 2 of 2
-
-Route::get('/books/{title}', 'BookController@showBook');
-
-Route::get('/books/', 'BookController@index');
 
 Route::get('/abc', function (){
     return App::environment();
@@ -48,8 +58,6 @@ Route::any('/practice/{n?}', 'PracticeController@index');
  Route::view('about', 'about');
  Route::view('/contact', 'contact');
 
-Route::get('/books/create', 'BookController@create');
-Route::post('/books', 'BookController@store');
 
 Route::get('/debug', function () {
 
@@ -75,4 +83,19 @@ Route::get('/debug', function () {
     }
 
     dump($debug);
+});
+
+#AUTH
+Auth::routes();
+
+Route::get('/show-login-status', function () {
+    $user = Auth::user();
+
+    if ($user) {
+        dump('You are logged in.', $user->toArray());
+    } else {
+        dump('You are not logged in.');
+    }
+
+    return;
 });

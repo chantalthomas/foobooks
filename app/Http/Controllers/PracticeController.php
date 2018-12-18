@@ -1,35 +1,163 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Utilities\Practice;
 use Illuminate\Http\Request;
 use IanLChapman\PigLatinTranslator\Parser;
 use App\Book;
+use App\Author;
 
 class PracticeController extends Controller
 {
+    public function practice23()
+    {
+        $books = Book::with('tags')->get();
+
+        foreach ($books as $book) {
+            dump($book->title.' is tagged with: ');
+            foreach ($book->tags as $tag) {
+                dump($tag->name.' ');
+            }
+        }
+    }
+
+    public function practice22()
+    {
+        $book = Book::where('title', '=', 'The Great Gatsby')->first();
+
+        dump($book->title.' is tagged with: ');
+        foreach ($book->tags as $tag) {
+            dump($tag->name);
+        }
+    }
+
+    public function practice21()
+    {
+        $books = Book::with('author')->get();
+
+        foreach ($books as $book) {
+
+# Get the author from this book using the "author" dynamic property
+# "author" corresponds to the the relationship method defined in the Book model
+        $author = $book->author;
+
+# Output
+        dump($book->title . ' was written by ' . $author->first_name . ' ' . $author->last_name);
+    }
+    }
+    /**
+     * One to Many Read Example
+     */
+    public function practice20()
+    {
+        # Get the first book as an example
+        $book = Book::first();
+
+# Get the author from this book using the "author" dynamic property
+# "author" corresponds to the the relationship method defined in the Book model
+        $author = $book->author;
+
+# Output
+        dump($book->title.' was written by '.$author->first_name.' '.$author->last_name);
+        dump($book->toArray());
+    }
+
+    /**
+     * One eto Many Create Example
+     */
+    public function practice19()
+    {
+        $author = Author::where('first_name', '=', 'J.K.')->first();
+
+        $book = new Book;
+        $book->title = "Fantastic Beasts and Where to Find Them";
+        $book->published_year = 2017;
+        $book->cover_url = 'http://prodimage.images-bn.com/pimages/9781338132311_p0_v2_s192x300.jpg';
+        $book->purchase_url = 'http://www.barnesandnoble.com/w/fantastic-beasts-and-where-to-find-them-j-k-rowling/1004478855';
+        $book->author()->associate($author); # <--- Associate the author with this book
+        #This is the same:
+        #$book->author_id = $author->id;
+        $book->save();
+        dump($book->toArray());
+    }
+    public function practice18() {
+        $books = Book::orderBy('id', 'desc')->get();
+        $book = $books->first();
+        dump($books);
+        dump($book);
+    }
+    public function practice17()
+    {
+        # Same as Practice 16 but using points to operator instead
+        $books = Book::all();
+
+        foreach ($books as $book) {
+            dump($book->title);
+        }
+    }
+    public function practice16()
+    {
+        # using array syntax
+        $books = Book::all();
+
+        # loop through the Collection and access just the data
+        foreach ($books as $book) {
+            dump($book['title']);
+        }
+    }
+    public function practice15()
+    {
+        $books = Book::all();
+
+        #This will output a JSON string
+        echo $books;
+    }
+    public function practice14 (){
+        # The following queries return a Book object
+        $results = Book::find(1);
+
+        $results = Book::orderBy('title')->first();
+        dump($results);
+
+        # Yields a collection of multiple books
+        $results = Book::all();
+
+        $results = Book::orderBy('title')->get();
+        dump($results->first());
+
+        # Should match 1 book; yields a Collection of 1 Book
+        $results = Book::where('author', 'F. Scott Fitzgerald')->get();
+
+        # Should match 0 books; yields an empty Collection
+        $results = Book::where('author', 'Virginia Wolf')->get();
+
+        # Even though we limit it to 1 book, we're using the `get` fetch method so we get a Collection (of 1 Book)
+        $results = Book::limit(1)->get();
+    }
     public function practice13()
     {
-        $book = Book::where('title', '=', 'JK')->delete();
+        $book = Book::where('title', 'LIKE', 'J.K.%')->delete();
     }
 
     public function practice12()
     {
         $book = new Book();
         # First get a book to update
-        $books = $book->where('author', '=', 'JW')->update(['author' => 'JW Rowling']);;
+        $books = $book->where('author', '=', 'J.K. Rowling')->update(['author' => 'JK Rowling']);;
 
-        dump('Check DB to see updates');
+        dump($books);
+        Practice::resetDatabase();
     }
 
     public function practice11()
     {
-        $book = Book::orderBy('published_year', 'desc')->get();
+        $book = Book::orderByDesc('published_year')->get();
         dump($book);
     }
 
     public function practice10()
     {
-        $book = Book::orderBy('title')->get();
+        $book = Book::orderBy('title', 'asc')->get();
         dump($book);
     }
 
@@ -43,6 +171,9 @@ class PracticeController extends Controller
     {
         $book = Book::orderBy('id', 'desc')->take(2)->get();
         dump($book);
+
+        #alternative solution
+        #$books = Book::latest()->limit(2)->get();
     }
 
     public function practice7()

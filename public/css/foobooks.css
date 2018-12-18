@@ -88,6 +88,17 @@ nav ul li a:hover {
     color: #18bc9c; /* teel */
 }
 
+.alert {
+    background-color: yellow;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+
 /*----------------------------------------------------
 Typography
 -----------------------------------------------------*/
